@@ -23,7 +23,9 @@ export default {
 
     this.scoreText = game.add.text(10, 10, "points: 0", { font: "bold 32px Arial", fill: "#fff" });
     this.comboText = game.add.text(10, 50, "combo: 1", { font: "bold 32px Arial", fill: "#fff" });
-    this.comboBar = new TimerBar(game, 10, 100)
+    this.comboBar = new TimerBar(game, 10, 100, 4000)
+    this.gameTimerBar = new TimerBar(game, 10, 170, 60000)
+    this.gameTimerBar.start(60000, this.player.release)
 
     game.input.addMoveCallback(this.move, this)
   },
@@ -35,6 +37,7 @@ export default {
   update(game) {
     this.player.update()
     this.comboBar.update()
+    this.gameTimerBar.update()
   },
 
   collide(player, ball) {
@@ -46,10 +49,18 @@ export default {
       this.player.hitBlue()
     }
 
-    this.comboBar.start(this.comboBar.running ? 500 : 2500, () => {
+    let setCombo = () => {
       combo = 1
       this.comboText.text = `combo: ${combo}`
-    })
+    }
+
+    if (this.comboBar.timer.running) {
+      this.comboBar.add(1500, setCombo)
+    } else {
+      this.comboBar.start(4000, setCombo)
+    }
+
+    this.gameTimerBar.add(500)
 
     this.score = this.score + combo
     this.scoreText.text = `points: ${this.score}`

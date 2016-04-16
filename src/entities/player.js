@@ -33,6 +33,8 @@ export default class Player {
     mouseSpring = this.game.physics.p2.createSpring(this.mouse, this.ball, 10, 40, 15)
     line.setTo(this.ball.x, this.ball.y, this.mouse.x, this.mouse.y)
     drawLine = true
+
+    this.release = this.release.bind(this)
   }
 
   move(x, y) {
@@ -50,7 +52,14 @@ export default class Player {
 
   update() {
     this.dist = this.game.physics.arcade.distanceToPointer(this.ball)
-    this.distBar.update(this.dist - 50)
+    this.strain = this.dist/1000
+    let hue = 0.35 - this.strain
+    let thing = Phaser.Color.HSLtoRGB(hue, 1, 0.5)
+    this.hue = Phaser.Color.RGBtoString(thing.r, thing.g, thing.b, 255, '#')
+    let otherthing = Phaser.Color.getColor(thing.r, thing.g, thing.b)
+    console.log(otherthing)
+
+    this.distBar.update(this.dist - 50, otherthing)
   }
 
   hitRed() {
@@ -66,6 +75,9 @@ export default class Player {
   release() {
     this.game.physics.p2.removeSpring(mouseSpring)
     drawLine = false
+    setTimeout(() => {
+      this.game.state.restart()
+    }, 1000)
   }
 
   preRender(game) {
@@ -75,17 +87,11 @@ export default class Player {
   }
 
   render(game) {
-    // want hue to go from 0.3 - 0
-    // should be 0.3 when at min dist, and at 0 when at breaking dist
-    const strain = this.dist/1000
-    if (!spawning && strain > 0.3) {
+    if (!spawning && drawLine && this.strain > 0.3) {
       this.release()
     } else {
-      let hue = 0.35 - strain
-      let thing = Phaser.Color.HSLtoRGB(hue, 1, 0.5)
-      thing = Phaser.Color.RGBtoString(thing.r, thing.g, thing.b, 255, '#')
       if (drawLine) {
-        this.game.debug.geom(line, thing, false)
+        this.game.debug.geom(line, this.hue, false)
       }
     }
   }

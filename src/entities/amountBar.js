@@ -9,10 +9,13 @@ export default class AmountBar {
     this.rect.width = 10
     this.sprite.crop(this.rect)
   }
-  update(amount) {
+  update(amount, hue) {
     this.amount = amount / this.barDuration
     if (this.amount >= this.barDuration) {
       this.amount = this.barDuration
+    }
+    if (hue) {
+      this.sprite.tint = hue
     }
     this.rect.width = this.amount * this.fullWidth
 		this.sprite.crop(this.rect)
