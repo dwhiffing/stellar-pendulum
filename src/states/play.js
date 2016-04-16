@@ -1,64 +1,71 @@
-var cow
-var line
-var mouseBody
-var mouseSpring
-var drawLine = false
+import Spawner from '../entities/spawner'
+import Player from '../entities/player'
+import TimerBar from '../entities/timerBar'
+
+let combo = 1
 
 export default {
   create(game) {
     this.game = game
     game.stage.backgroundColor = '#304871'
+    this.score = 0
+    combo = 1
 
     game.physics.startSystem(Phaser.Physics.P2JS)
-    game.physics.p2.gravity.y = 100
-    game.physics.p2.restitution = 0.8
+    game.physics.p2.gravity.y = 1100
+    game.physics.p2.restitution = 0.6
 
-    cow = game.add.sprite(200, 200, 'cow')
-    game.physics.p2.enable(cow, true)
-    cow.body.setCircle(20)
+    var playerCollisionGroup = game.physics.p2.createCollisionGroup()
+    var ballCollisionGroup = game.physics.p2.createCollisionGroup()
 
-    mouseBody = game.add.sprite(100, 100, 'cursor')
-    game.physics.p2.enable(mouseBody, true)
-    mouseBody.body.static = true
-    mouseBody.body.setCircle(10)
-    mouseBody.body.data.shapes[0].sensor = true
+    this.player = new Player(game, ballCollisionGroup, playerCollisionGroup, (...args) => this.collide(...args))
+    this.spawner = new Spawner(game, ballCollisionGroup, playerCollisionGroup)
 
-    line = new Phaser.Line(cow.x, cow.y, mouseBody.x, mouseBody.y)
+    this.scoreText = game.add.text(10, 10, "points: 0", { font: "bold 32px Arial", fill: "#fff" });
+    this.comboText = game.add.text(10, 50, "combo: 1", { font: "bold 32px Arial", fill: "#fff" });
+    this.comboBar = new TimerBar(game, 10, 100)
 
-    game.input.onDown.add(this.click, this)
-    game.input.onUp.add(this.release, this)
     game.input.addMoveCallback(this.move, this)
   },
 
-  click(pointer) {
-    var bodies = this.game.physics.p2.hitTest(pointer.position, [ cow.body ])
-    if (bodies.length) {
-      mouseSpring = this.game.physics.p2.createSpring(mouseBody, bodies[0], 0, 30, 1)
-      line.setTo(cow.x, cow.y, mouseBody.x, mouseBody.y)
-      drawLine = true
+  move(pointer, x, y) {
+    this.player.move(x, y)
+  },
+
+  update(game) {
+    this.player.update()
+    this.comboBar.update()
+  },
+
+  collide(player, ball) {
+    let sprite = ball.parent.sprite
+
+    if (sprite.tint === 0xff0000) {
+      this.player.hitRed()
+    } else if (sprite.tint === 0x0000ff) {
+      this.player.hitBlue()
     }
-  },
 
-  release() {
-    this.game.physics.p2.removeSpring(mouseSpring)
-    drawLine = false
-  },
+    this.comboBar.start(this.comboBar.running ? 500 : 2500, () => {
+      combo = 1
+      this.comboText.text = `combo: ${combo}`
+    })
 
-  move(pointer, x, y, isDown) {
-    mouseBody.body.x = x
-    mouseBody.body.y = y
-    line.setTo(cow.x, cow.y, mouseBody.x, mouseBody.y)
+    this.score = this.score + combo
+    this.scoreText.text = `points: ${this.score}`
+
+    combo++
+    this.comboText.text = `combo: ${combo}`
+
+    sprite.kill()
+    this.spawner.spawn()
   },
 
   preRender(game) {
-    if (line) {
-      line.setTo(cow.x, cow.y, mouseBody.x, mouseBody.y)
-    }
+    this.player.preRender()
   },
 
   render(game) {
-    if (drawLine) {
-      game.debug.geom(line)
-    }
+    this.player.render()
   },
 }
