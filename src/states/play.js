@@ -1,16 +1,12 @@
 import Spawner from '../entities/spawner'
 import Player from '../entities/player'
 import TimerBar from '../entities/timerBar'
-
-let combo = 1
+import UserInterface from '../entities/ui'
 
 export default {
   create(game) {
     this.game = game
     game.stage.backgroundColor = '#304871'
-    this.score = 0
-    combo = 1
-
     game.physics.startSystem(Phaser.Physics.P2JS)
     game.physics.p2.gravity.y = 1100
     game.physics.p2.restitution = 0.6
@@ -20,12 +16,7 @@ export default {
 
     this.player = new Player(game, ballCollisionGroup, playerCollisionGroup, (...args) => this.collide(...args))
     this.spawner = new Spawner(game, ballCollisionGroup, playerCollisionGroup)
-
-    this.scoreText = game.add.text(10, 10, "points: 0", { font: "bold 32px Arial", fill: "#fff" });
-    this.comboText = game.add.text(10, 50, "combo: 1", { font: "bold 32px Arial", fill: "#fff" });
-    this.comboBar = new TimerBar(game, 10, 100, 4000)
-    this.gameTimerBar = new TimerBar(game, 10, 170, 60000)
-    this.gameTimerBar.start(60000, this.player.release)
+    this.ui = new UserInterface(game, 2000, this.onTimeUp.bind(this))
 
     game.input.addMoveCallback(this.move, this)
   },
@@ -36,8 +27,11 @@ export default {
 
   update(game) {
     this.player.update()
-    this.comboBar.update()
-    this.gameTimerBar.update()
+    this.ui.update()
+  },
+
+  onTimeUp() {
+    this.player.release()
   },
 
   collide(player, ball) {
@@ -49,25 +43,11 @@ export default {
       this.player.hitBlue()
     }
 
-    let setCombo = () => {
-      combo = 1
-      this.comboText.text = `combo: ${combo}`
-    }
+    const velocity = this.player.ball.body.velocity
+    const speed = Math.abs(velocity.x) + Math.abs(velocity.y)
+    const finalSpeed = Math.max(3,Math.floor(speed/50))
 
-    if (this.comboBar.timer.running) {
-      this.comboBar.add(1500, setCombo)
-    } else {
-      this.comboBar.start(4000, setCombo)
-    }
-
-    this.gameTimerBar.add(500)
-
-    this.score = this.score + combo
-    this.scoreText.text = `points: ${this.score}`
-
-    combo++
-    this.comboText.text = `combo: ${combo}`
-
+    this.ui.hitTarget(sprite, finalSpeed)
     sprite.kill()
     this.spawner.spawn()
   },

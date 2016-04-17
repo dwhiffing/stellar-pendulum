@@ -1,6 +1,8 @@
 import BootState from './states/boot'
 import LoadState from './states/load'
 import PlayState from './states/play'
+import shake from './lib/shake'
+
 
 (function() {
   let game = new Phaser.Game(800, 600, Phaser.CANVAS, 'app')

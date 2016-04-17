@@ -1,8 +1,9 @@
 export default class TimerBar {
   constructor(game, x, y, max) {
   	this.game = game
-  	this.game.add.sprite(x, y, 'bar', 1)
   	this.sprite = this.game.add.sprite(x, y, 'bar', 0)
+    this.sprite.anchor.setTo(0.5,0.5)
+    this.sprite.scale.y = 0.5
     this.fullWidth = this.sprite.width
     this.rect = new Phaser.Rectangle(0, 0, 0, this.sprite.height)
     this.timer = game.time.create(false)
@@ -18,7 +19,6 @@ export default class TimerBar {
   }
   start(dur, cb) {
     this.timer.add(dur, () => {
-      console.log('asd')
       cb && cb()
       this.stop()
     })

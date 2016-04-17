@@ -1,9 +1,13 @@
 export default class AmountBar {
   constructor(game, x, y, barDuration=100) {
   	this.game = game
-  	this.game.add.sprite(x, y, 'bar', 1)
+  	this.bar = this.game.add.sprite(x, y, 'bar', 1)
   	this.sprite = this.game.add.sprite(x, y, 'bar', 0)
+    this.bar.anchor.setTo(0, 0.5)
+    this.sprite.anchor.setTo(0, 0.5)
     this.fullWidth = this.sprite.width
+    this.sprite.x = x - this.fullWidth/2
+    this.bar.x = x - this.fullWidth/2
     this.rect = new Phaser.Rectangle(0, 0, 0, this.sprite.height)
     this.barDuration = barDuration
     this.rect.width = 10
