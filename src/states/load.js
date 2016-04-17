@@ -1,6 +1,5 @@
 export default {
   preload() {
-    this.game.plugins.cameraShake = this.game.plugins.add(Phaser.Plugin.CameraShake)
     this.load.onLoadComplete.addOnce(this.onLoadComplete, this)
 
     this.load.image('ball', 'images/ball.png')
