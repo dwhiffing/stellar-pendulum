@@ -8,8 +8,6 @@ export default class AmountBar {
     this.bar.anchor.setTo(0, 0.5)
     this.sprite.anchor.setTo(0, 0.5)
     this.setSize(size)
-    // this.rect = new Phaser.Rectangle(0, 0, 0, this.sprite.height)
-    // this.sprite.crop(this.rect)
   }
   setSize(size) {
     this.bar.width = size *0.5

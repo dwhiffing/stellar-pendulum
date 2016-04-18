@@ -1,42 +1,46 @@
 import TimerBar from '../entities/timerBar'
 
+const INITIAL_COMOBO_TIME = 3000
+const TIME_PER_HIT = 1000
+const PARTICLE_LIFETIME = 5000
 let timer = 5
-let initialComboTime = 3000
-let timePerHit = 1000
-let particleLifetime = 5000
 
 export default class UserInterface {
   constructor(game, time, onTimeUp) {
     this.game = game
-    this.score = 0
     this.time = time
-    this.combo = 0
-
     this.onTimeUp = onTimeUp
+    this.score = this.timer = this.combo = 0
 
     this.sndComboEnd = game.add.audio('comboend')
-
     this.scoreText = game.add.text(10, 10, "0", { font: "bold 32px Arial", fill: "#fff" })
     this.timeText = game.add.text(game.world.width-120, 10, "T: 2000", { font: "bold 32px Arial", fill: "#fff" })
-    this.comboBar = new TimerBar(game, game.world.centerX, game.world.centerY+20, 3000)
+    this.font = game.add.retroFont('0', 62, 50, Phaser.RetroFont.TEXT_SET6, 10, 2, 2)
 
-    this.font = game.add.retroFont('text', 62, 50, Phaser.RetroFont.TEXT_SET6, 10, 2, 2)
-    this.font.text = "0"
     this.comboImage = game.add.image(game.world.centerX, game.world.centerY, this.font)
     this.comboImage.anchor.set(0.5, 1)
     this.comboImage.alpha = 0
 
-    this.emitter = game.add.emitter(0, 0, 300)
-    this.emitter.makeParticles('bit')
-    this.emitter.setAlpha(0.9, 0, 2000)
-    this.emitter.gravity = 400
+    this.comboBar = new TimerBar(game, game.world.centerX, game.world.centerY+20, 3000)
+
+    this.redEmitter = this.createEmitter(100, 0xff0000)
+    this.blueEmitter = this.createEmitter(100, 0x0000ff)
+    this.yellowEmitter = this.createEmitter(300, 0xffff00)
+  }
+
+  createEmitter(amount, tint) {
+    let emitter = this.game.add.emitter(0, 0, 300)
+    emitter.makeParticles('bit')
+    emitter.setAlpha(0.9, 0, 4000)
+    emitter.gravity = 400
+    emitter.forEach(particle => particle.tint = tint)
   }
 
   emit(x, y, tint, speed) {
     this.emitter.x = x
     this.emitter.y = y
     this.emitter.forEach(particle => particle.tint = tint)
-    this.emitter.start(true, particleLifetime, null, speed)
+    this.emitter.start(true, PARTICLE_LIFETIME, null, speed)
   }
 
   hitTarget(sprite, speed, velocity, mass) {
@@ -48,7 +52,13 @@ export default class UserInterface {
     this.scoreText.text = `${this.score}`
     this.font.text = this.combo.toString()
 
-
+    if (sprite.tint === 0xffff00) {
+      this.emitter = this.yellowEmitter
+    } else if (sprite.tint === 0xff0000) {
+      this.emitter = this.redEmitter
+    } else {
+      this.emitter = this.blueEmitter
+    }
     this.emitter.setScale(sprite.scale.x * 0.8, sprite.scale.x * 0.5, sprite.scale.x * 0.8, sprite.scale.x * 0.5, 3000, Phaser.Easing.Quintic.Out)
     this.emitter.setXSpeed(-200 + velocity.x*0.2, 200+velocity.x*0.3)
     this.emitter.setYSpeed(-200 + velocity.y*0.2, 200+ velocity.y*0.3)
@@ -61,10 +71,10 @@ export default class UserInterface {
       if (this.comboBar.timer.running) {
         this.comboBar.add(2000, this.resetCombo.bind(this))
       } else {
-        this.comboBar.add(timePerHit, this.resetCombo.bind(this))
+        this.comboBar.add(TIME_PER_HIT, this.resetCombo.bind(this))
       }
     } else {
-      this.comboBar.start(initialComboTime, this.resetCombo.bind(this))
+      this.comboBar.start(INITIAL_COMOBO_TIME, this.resetCombo.bind(this))
     }
   }
 
@@ -85,9 +95,9 @@ export default class UserInterface {
 
   update() {
     if (this.reseting) {
-      timer--
-      if (timer <= 0 ) {
-        timer = 5
+      this.timer--
+      if (this.timer <= 0 ) {
+        this.timer = 5
         this.combo--
         this.sndComboEnd.play()
         this.font.text = this.combo.toString()
