@@ -86,7 +86,7 @@ export default class UserInterface {
   update() {
     if (this.reseting) {
       timer--
-      if (timer <= 0) {
+      if (timer <= 0 ) {
         timer = 5
         this.combo--
         this.sndComboEnd.play()
@@ -100,7 +100,9 @@ export default class UserInterface {
 
     if (this.time <= 0) {
       this.time = 0
-      this.onTimeUp()
+      if (this.combo === 0) {
+        this.onTimeUp()
+      }
     } else {
       this.time--
     }

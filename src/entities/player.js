@@ -70,17 +70,16 @@ export default class Player {
     this.trailEmitter.x = this.ball.x
     this.trailEmitter.y = this.ball.y
 
-    var theVariable = lineSize - this.dist
-    var top = 12
-    var bottom = 1
-    var distance = top - bottom
-    this.width = bottom + ((theVariable / 100) * distance)
+    var distance = lineSize - this.dist
+    var maxWidth = 12
+    var minWidth = 1
+    var difference = maxWidth - minWidth
+    this.width = minWidth + ((distance / 100) * difference)
 
-    var theVariable = lineSize - this.dist
-    var top = 220
-    var bottom = 0
-    var distance = top - bottom
-    let hue = bottom + ((theVariable / 100) * distance)
+    var max = 220
+    var min = 0
+    var difference = max - min
+    let hue = min + ((distance / 100) * difference)
     hue = Phaser.Color.HSLtoRGB(hue/1000, 1, 0.5)
     this.hue = Phaser.Color.RGBtoString(hue.r, hue.g, hue.b, 255, '#')
     this.hueColor = Phaser.Color.getColor(hue.r, hue.g, hue.b)
