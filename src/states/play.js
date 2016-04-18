@@ -6,7 +6,7 @@ import UserInterface from '../entities/ui'
 export default {
   create(game) {
     this.game = game
-    game.stage.backgroundColor = '#304871'
+    game.stage.backgroundColor = '#000000'
     this.game.camera.bounds = null
     this._shakeWorldTime = 0
     this._shakeWorldMax = 20
@@ -14,6 +14,11 @@ export default {
       this._shakeWorldTime = duration || 20;
       this._shakeWorldMax = strength || 20;
     }
+
+    this.sndBallHit = game.add.audio('hit1')
+    this.sndBallHit2 = game.add.audio('hit2')
+    this.sndBallHit3 = game.add.audio('hit3')
+    this.sndBallHitBall = game.add.audio('hitball')
 
     game.physics.startSystem(Phaser.Physics.P2JS)
     game.physics.p2.gravity.y = 1100
@@ -24,8 +29,8 @@ export default {
     game.physics.p2.updateBoundsCollisionGroup()
 
     this.player = new Player(game, ballCollisionGroup, playerCollisionGroup, (...args) => this.collide(...args))
+    this.game.ui = new UserInterface(game, 3000, this.onTimeUp.bind(this))
     this.spawner = new Spawner(game, ballCollisionGroup, playerCollisionGroup)
-    this.ui = new UserInterface(game, 2000, this.onTimeUp.bind(this))
 
     game.input.addMoveCallback(this.move, this)
   },
@@ -36,7 +41,7 @@ export default {
 
   update(game) {
     this.player.update()
-    this.ui.update()
+    this.game.ui.update()
 
     if(this._shakeWorldTime > 0) {
       var magnitude = (this._shakeWorldTime / this._shakeWorldMax) * this._shakeWorldMax;
@@ -54,20 +59,38 @@ export default {
   },
 
   collide(player, ball) {
-    if (!ball.parent) return
+    if (!ball.parent) {
+      if (!this.sndBallHitBall.isPlaying) {
+        this.sndBallHitBall.play()
+      }
+      return
+    }
+
+    if (!this.player.alive) return
+
     let sprite = ball.parent.sprite
 
     if (sprite.tint === 0xff0000) {
       this.player.hitRed()
     } else if (sprite.tint === 0x0000ff) {
       this.player.hitBlue()
+    } else {
+      this.player.hitYellow()
     }
 
     const velocity = this.player.ball.body.velocity
-    const speed = Math.abs(velocity.x) + Math.abs(velocity.y)
+    const speed = Math.abs(velocity.x) + Math.abs(velocity.y) * this.player.ball.body.mass
     const finalSpeed = Math.max(3,Math.floor(speed/50))
 
-    this.ui.hitTarget(sprite, finalSpeed)
+    if (finalSpeed > 40) {
+      this.sndBallHit3.play()
+    } else if (finalSpeed > 20) {
+      this.sndBallHit2.play()
+    } else {
+      this.sndBallHit.play()
+    }
+
+    this.game.ui.hitTarget(sprite, finalSpeed, velocity, this.player.ball.body.mass)
     sprite.kill()
     this.spawner.spawn()
   },

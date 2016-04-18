@@ -1,27 +1,32 @@
 export default class AmountBar {
-  constructor(game, x, y, barDuration=100) {
+  constructor(game, x, y, size=100) {
+    this.x = x
+    this.y = y
   	this.game = game
   	this.bar = this.game.add.sprite(x, y, 'bar', 1)
   	this.sprite = this.game.add.sprite(x, y, 'bar', 0)
     this.bar.anchor.setTo(0, 0.5)
     this.sprite.anchor.setTo(0, 0.5)
-    this.fullWidth = this.sprite.width
-    this.sprite.x = x - this.fullWidth/2
-    this.bar.x = x - this.fullWidth/2
-    this.rect = new Phaser.Rectangle(0, 0, 0, this.sprite.height)
-    this.barDuration = barDuration
-    this.rect.width = 10
-    this.sprite.crop(this.rect)
+    this.setSize(size)
+    // this.rect = new Phaser.Rectangle(0, 0, 0, this.sprite.height)
+    // this.sprite.crop(this.rect)
+  }
+  setSize(size) {
+    this.bar.width = size *0.5
+    this.barDuration = size
+    this.bar.x = this.x - this.bar.width/2
+    this.sprite.x = this.x - this.bar.width/2
   }
   update(amount, hue) {
     this.amount = amount / this.barDuration
-    if (this.amount >= this.barDuration) {
-      this.amount = this.barDuration
+    this.isFull = false
+    if (this.amount >= 1) {
+      this.isFull = true
+      this.amount = 1
     }
     if (hue) {
       this.sprite.tint = hue
     }
-    this.rect.width = this.amount * this.fullWidth
-		this.sprite.crop(this.rect)
+    this.sprite.width = this.amount * this.bar.width
   }
 }

@@ -15,7 +15,7 @@ export default class Spawner {
       var ball
       ball = balls.create(game.world.randomX, game.world.randomY, 'ball')
 
-      ball.body.setRectangle(40, 40)
+      ball.body.setCircle(10)
       ball.body.static = true
       ball.kill()
 
@@ -24,8 +24,8 @@ export default class Spawner {
       ball.body.collides(playerCollisionGroup)
     }
 
-    nextPos = { x: this.game.rnd.integerInRange(50, this.game.world.width-50), y: this.game.rnd.integerInRange(50, this.game.world.height-50) }
-    nextPos2 = { x: this.game.rnd.integerInRange(50, this.game.world.width-50), y: this.game.rnd.integerInRange(50, this.game.world.height-50) }
+    nextPos = { x: this.game.rnd.integerInRange(100, this.game.world.width-100), y: this.game.rnd.integerInRange(100, this.game.world.height-100) }
+    nextPos2 = { x: this.game.rnd.integerInRange(100, this.game.world.width-100), y: this.game.rnd.integerInRange(100, this.game.world.height-100) }
 
     marker = game.add.sprite(200, 200, 'marker')
     marker2 = game.add.sprite(200, 200, 'marker')
@@ -45,9 +45,12 @@ export default class Spawner {
   }
 
   getTint(i) {
-    if (spawnNum > 10 && spawnNum % 10 === 0) {
+    if (i < 0) {
+      i = 0
+    }
+    if (i >= 15 && i % 15 === 0) {
       return 0x0000ff
-    } else if (spawnNum > 5 && spawnNum % 5 === 0) {
+    } else if (i >= 5 && i % 5 === 0) {
       return 0xff0000
     } else {
       return 0xffff00
@@ -55,6 +58,10 @@ export default class Spawner {
   }
 
   spawn() {
+    if (balls.countLiving() > 0) {
+      return
+    }
+
     var ball
     ball = balls.getFirstDead()
 
@@ -65,8 +72,8 @@ export default class Spawner {
     marker.reset(nextPos.x, nextPos.y)
     marker.tint = nextPos.tint
 
-    var tint = this.getTint()
-    nextPos2 = { x: this.game.rnd.integerInRange(50, this.game.world.width-50), y: this.game.rnd.integerInRange(50, this.game.world.height-50), tint: tint }
+    var tint = this.getTint(this.game.ui.combo + 3)
+    nextPos2 = { x: this.game.rnd.integerInRange(100, this.game.world.width-100), y: this.game.rnd.integerInRange(100, this.game.world.height-100), tint: tint }
     marker2.reset(nextPos2.x, nextPos2.y)
     marker2.tint = nextPos2.tint
     spawnNum++
