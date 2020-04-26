@@ -22,19 +22,20 @@ export default class UserInterface {
       fill: '#fff',
     })
     this.font = game.add.retroFont(
-      '0',
+      'text',
       62,
       50,
       Phaser.RetroFont.TEXT_SET6,
       10,
       2,
-      2
+      2,
     )
+    this.hitTarget = this.hitTarget.bind(this)
 
     this.comboImage = game.add.image(
       game.world.centerX,
       game.world.centerY,
-      this.font
+      this.font,
     )
     this.comboImage.anchor.set(0.5, 1)
     this.comboImage.alpha = 0
@@ -43,12 +44,13 @@ export default class UserInterface {
       game,
       game.world.centerX,
       game.world.centerY + 20,
-      3000
+      3000,
     )
 
     this.redEmitter = this.createEmitter(100, 0xff0000)
     this.blueEmitter = this.createEmitter(100, 0x0000ff)
     this.yellowEmitter = this.createEmitter(300, 0xffff00)
+    this.emitter = this.yellowEmitter
   }
 
   createEmitter(amount, tint) {
@@ -56,13 +58,14 @@ export default class UserInterface {
     emitter.makeParticles('bit')
     emitter.setAlpha(0.9, 0, 4000)
     emitter.gravity = 400
-    emitter.forEach(particle => (particle.tint = tint))
+    emitter.forEach((particle) => (particle.tint = tint))
+    return emitter
   }
 
   emit(x, y, tint, speed) {
     this.emitter.x = x
     this.emitter.y = y
-    this.emitter.forEach(particle => (particle.tint = tint))
+    this.emitter.forEach((particle) => (particle.tint = tint))
     this.emitter.start(true, PARTICLE_LIFETIME, null, speed)
   }
 
@@ -88,7 +91,7 @@ export default class UserInterface {
       sprite.scale.x * 0.8,
       sprite.scale.x * 0.5,
       3000,
-      Phaser.Easing.Quintic.Out
+      Phaser.Easing.Quintic.Out,
     )
     this.emitter.setXSpeed(-200 + velocity.x * 0.2, 200 + velocity.x * 0.3)
     this.emitter.setYSpeed(-200 + velocity.y * 0.2, 200 + velocity.y * 0.3)
