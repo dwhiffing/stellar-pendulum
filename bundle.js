@@ -91,6 +91,7 @@
 	exports.default = {
 	  create: function create(game) {
 	    this.game.state.start('load', true, false);
+	    this.load.image('loader', 'images/loader.png');
 	  }
 	};
 
@@ -106,6 +107,8 @@
 	exports.default = {
 	  preload: function preload() {
 	    this.load.onLoadComplete.addOnce(this.onLoadComplete, this);
+	    var loader = this.add.sprite(150, 150, 'loader');
+	    this.load.setPreloadSprite(loader);
 
 	    this.load.audio('hit1', 'audio/hit.mp3');
 	    this.load.audio('hit2', 'audio/hit2.mp3');
