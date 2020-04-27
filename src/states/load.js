@@ -1,6 +1,8 @@
 export default {
   preload() {
     this.load.onLoadComplete.addOnce(this.onLoadComplete, this)
+    let loader = this.add.sprite(150, 150, 'loader')
+    this.load.setPreloadSprite(loader)
 
     this.load.audio('hit1', 'audio/hit.mp3')
     this.load.audio('hit2', 'audio/hit2.mp3')
@@ -13,12 +15,12 @@ export default {
     this.load.image('ball', 'images/ball.png')
     this.load.image('marker', 'images/marker.png')
     this.load.image('bit', 'images/bit.png')
-    this.load.spritesheet('bar', 'images/bar.png', 150, 20);
+    this.load.spritesheet('bar', 'images/bar.png', 150, 20)
     this.load.image('ring', 'images/ring.png')
-    this.load.image('text', 'images/font.png');
+    this.load.image('text', 'images/font.png')
   },
 
   onLoadComplete() {
     this.game.state.start('menu')
-  }
+  },
 }
